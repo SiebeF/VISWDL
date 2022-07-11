@@ -22,21 +22,21 @@ public class Main {
     //final layers wegnemen resnet 50 --> boat/no boat
     public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
         Criteria<Image, DetectedObjects> criteria = Criteria.builder()
-//                .optApplication(Application.CV.OBJECT_DETECTION)
-//                .setTypes(Image.class, DetectedObjects.class)
-////                .optArtifactId("ssd")
-//                .optFilter("backbone", "resnet50")
-//                .optProgress(new ProgressBar())
-//                .build();
                 .optApplication(Application.CV.OBJECT_DETECTION)
                 .setTypes(Image.class, DetectedObjects.class)
-                .optFilter("backbone", "vgg16")
-                .optFilter("dataset", "voc")
-                .optEngine("MXNet")
+//                .optArtifactId("ssd")
+                .optFilter("backbone", "resnet50")
                 .optProgress(new ProgressBar())
                 .build();
+//                .optApplication(Application.CV.OBJECT_DETECTION)
+//                .setTypes(Image.class, DetectedObjects.class)
+//                .optFilter("backbone", "vgg16")
+//                .optFilter("dataset", "voc")
+//                .optEngine("MXNet")
+//                .optProgress(new ProgressBar())
+//                .build();
 
-        Path img_path = Paths.get("images/737207_2.jpg");
+        Path img_path = Paths.get("images/BootMetWindmolens.jpeg");
         Image img = ImageFactory.getInstance().fromFile(img_path);
 
         //load image
