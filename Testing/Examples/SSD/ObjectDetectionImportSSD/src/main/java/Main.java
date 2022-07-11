@@ -36,7 +36,7 @@ public class Main {
                 .optProgress(new ProgressBar())
                 .build();
 
-        Path img_path = Paths.get("images/737200_2.jpg");
+        Path img_path = Paths.get("images/737207_2.jpg");
         Image img = ImageFactory.getInstance().fromFile(img_path);
 
         //load image
