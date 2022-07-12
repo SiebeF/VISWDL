@@ -1,0 +1,1 @@
+New images need to be added in the images-map, this map will contain the resized images of the images-map
