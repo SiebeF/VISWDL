@@ -55,6 +55,34 @@ public final class TransferlearningResnetWithCifar10 {
     public static void main(String[] args) throws ModelException, IOException, TranslateException {
         //TransferlearningResnetWithCifar10.runExample(args);
 
+        Model model = Model.newInstance("resnetv1");
+        Block resNet50 =
+                ResNetV1.builder()
+                        .setImageShape(new Shape(3, 32, 32))
+                        .setNumLayers(50)
+                        .setOutSize(10)
+                        .build();
+        model.setBlock(resNet50);
+
+        // load the trained model parameters
+        Path modelPath = Paths.get("/home/localadmin/Desktop/VISWDL/Testing/Examples/Resnet/TransferlearningResnetWithCifar10/build/model");
+        model.load(modelPath);
+
+        String synsetUrl =
+                "https://mlrepo.djl.ai/model/cv/image_classification/ai/djl/mxnet/synset_cifar10.txt";
+        ImageClassificationTranslator translator =
+                ImageClassificationTranslator.builder()
+                        .addTransform(new ToTensor())
+                        .addTransform(new Normalize(Cifar10.NORMALIZE_MEAN, Cifar10.NORMALIZE_STD))
+                        .optSynsetUrl(synsetUrl)
+                        .optApplySoftmax(true)
+                        .build();
+
+        Image img = ImageFactory.getInstance().fromUrl("resizedimages/airplane1.png");
+        try (Predictor<Image, Classifications> predictor = model.newPredictor(translator)) {
+            System.out.println(predictor.predict(img));
+        }
+
     }
 
     public static TrainingResult runExample(String[] args)
