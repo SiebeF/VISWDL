@@ -40,6 +40,10 @@ import ai.djl.translate.TranslateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -77,7 +81,7 @@ public final class TransferlearningResnetWithCifar10 {
                         .optSynsetUrl(synsetUrl)
                         .optApplySoftmax(true)
                         .build();
-
+        imageResizer("images/airplane1.png");
         Image img = ImageFactory.getInstance().fromUrl("resizedimages/airplane1.png");
         try (Predictor<Image, Classifications> predictor = model.newPredictor(translator)) {
             System.out.println(predictor.predict(img));
@@ -241,5 +245,24 @@ public final class TransferlearningResnetWithCifar10 {
                         .build();
         cifar10.prepare(new ProgressBar());
         return cifar10;
+    }
+
+    private static void imageResizer(String input) throws IOException {
+        String sname = input.substring(input.lastIndexOf('/'));
+        String name = sname.substring(1);
+        String pextend = input.substring(input.lastIndexOf('.'));
+        String extend = pextend.substring(1);
+
+        BufferedImage img = ImageIO.read(new File(input));
+        File file = new File("resizedimages/"+name);
+        ImageIO.write(resizeImage(img,32,32),extend,file);
+    }
+
+    private static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
+        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = resizedImage.createGraphics();
+        graphics2D.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        graphics2D.dispose();
+        return resizedImage;
     }
 }
