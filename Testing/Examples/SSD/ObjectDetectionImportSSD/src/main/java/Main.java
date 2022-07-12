@@ -46,11 +46,7 @@ public class Main {
 //                .optProgress(new ProgressBar())
 //                .build();
 
-<<<<<<< HEAD
         Path img_path = Paths.get("images/737207_2.jpg");
-=======
-        Path img_path = Paths.get("images/BootMetWindmolens.jpeg");
->>>>>>> d525a7f3261b120d6a4c6e7a1401902d9f07ca10
         Image img = ImageFactory.getInstance().fromFile(img_path);
 
         //load model
