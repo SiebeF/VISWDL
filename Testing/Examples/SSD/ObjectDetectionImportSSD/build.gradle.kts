@@ -20,6 +20,7 @@ dependencies {
     implementation("ai.djl.mxnet:mxnet-model-zoo:0.17.0")
     //   implementation("org.knowm.datasets:datasets-cifar10:2.1.0")
 //    implementation("ai.djl:basicdataset:0.17.0")
+    implementation("net.sf.opencsv:opencsv:2.3")
 }
 
 tasks.getByName<Test>("test") {
