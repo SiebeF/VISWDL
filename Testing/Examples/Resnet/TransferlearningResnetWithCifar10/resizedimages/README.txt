@@ -1,0 +1,1 @@
+This folder contains the resized images of the images map. Later on this will happen automatically (hopefully)
