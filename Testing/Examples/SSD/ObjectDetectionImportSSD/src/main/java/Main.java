@@ -31,13 +31,24 @@ import java.util.Properties;
 public class Main {
     //final layers wegnemen resnet 50 --> boat/no boat
     public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
-        Criteria<Image, DetectedObjects> criteria = Criteria.builder()
-                .optApplication(Application.CV.OBJECT_DETECTION)
+        List<String> images = createArrayList();
+
+        //iteratie through images and use model
+        for (String image : images){
+            String path = "images/" + image;
+            Path img_path = Paths.get(path);
+            Image img = ImageFactory.getInstance().fromFile(img_path);
+            makePrediction(img);
+        }
+    }
+
+    private static Criteria<Image, DetectedObjects> getCriteria(){
+        return (Criteria.builder()
+                .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
                 .setTypes(Image.class, DetectedObjects.class)
-//                .optArtifactId("ssd")
                 .optFilter("backbone", "resnet50")
                 .optProgress(new ProgressBar())
-                .build();
+                .build());
 //                .optApplication(Application.CV.OBJECT_DETECTION)
 //                .setTypes(Image.class, DetectedObjects.class)
 //                .optFilter("backbone", "vgg16")
@@ -45,30 +56,9 @@ public class Main {
 //                .optEngine("MXNet")
 //                .optProgress(new ProgressBar())
 //                .build();
-
-        Path img_path = Paths.get("images/737207_2.jpg");
-        Image img = ImageFactory.getInstance().fromFile(img_path);
-
-        //load model
-        ZooModel<Image, DetectedObjects> model = ModelZoo.loadModel(criteria);
-
-        //predict model
-        Predictor<Image, DetectedObjects> predictor = model.newPredictor();
-        DetectedObjects detected_objects = predictor.predict(img);
-
-        model.close();
-        System.out.println(detected_objects);
-
-        img.drawBoundingBoxes(detected_objects);
-        Path resultPath = Paths.get("results/result.png");
-        img.save(Files.newOutputStream(resultPath), "png");
-
-        //save data to csv
-        double mAP = detected_objects.best().getProbability();
-        int imageSize = img.getHeight()*img.getWidth();
-        toCSV(mAP, imageSize);
     }
 
+    //put important data in csv file
     private static void toCSV(double mAP, int imageSize) throws IOException {
         File file = new File("results/results.csv");
 
@@ -84,5 +74,43 @@ public class Main {
         catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    //use the loaded model on the image
+    private static void makePrediction(Image img) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
+        //load model
+        ZooModel<Image, DetectedObjects> model = ModelZoo.loadModel(getCriteria());
+
+        //predict model
+        Predictor<Image, DetectedObjects> predictor = model.newPredictor();
+        DetectedObjects detected_objects = predictor.predict(img);
+        model.close();
+
+        System.out.println(detected_objects);
+
+        img.drawBoundingBoxes(detected_objects);
+        Path resultPath = Paths.get("results/result.png");
+        img.save(Files.newOutputStream(resultPath), "png");
+
+        //save data to csv
+        double mAP = detected_objects.best().getProbability();
+        int imageSize = img.getHeight()*img.getWidth();
+        toCSV(mAP, imageSize);
+    }
+
+    //create a list of all images
+    private static List<String> createArrayList(){
+        //src: https://www.codegrepper.com/code-examples/java/java+file+get+folder+list
+        List<String> images = new ArrayList<String>();
+
+        File[] files = new File("images").listFiles();
+
+        assert files != null;
+        for (File file : files) {
+            if (file.isFile()) {
+                images.add(file.getName());
+            }
+        }
+        return images;
     }
 }
