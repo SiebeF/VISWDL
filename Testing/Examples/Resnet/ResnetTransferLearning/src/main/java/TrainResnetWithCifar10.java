@@ -1,0 +1,2 @@
+public class TrainResnetWithCifar10 {
+}
