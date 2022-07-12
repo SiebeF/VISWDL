@@ -23,6 +23,7 @@ dependencies {
     implementation("ai.djl.mxnet:mxnet-model-zoo:0.18.0")
     // https://mavenlibs.com/maven/dependency/ai.djl/examples
     implementation("ai.djl:examples:0.6.0")
+
 }
 
 tasks.getByName<Test>("test") {
