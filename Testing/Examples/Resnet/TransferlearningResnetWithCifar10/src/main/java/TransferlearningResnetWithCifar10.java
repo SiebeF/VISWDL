@@ -53,7 +53,8 @@ public final class TransferlearningResnetWithCifar10 {
     private TransferlearningResnetWithCifar10() {}
 
     public static void main(String[] args) throws ModelException, IOException, TranslateException {
-        TransferlearningResnetWithCifar10.runExample(args);
+        //TransferlearningResnetWithCifar10.runExample(args);
+
     }
 
     public static TrainingResult runExample(String[] args)
@@ -93,6 +94,7 @@ public final class TransferlearningResnetWithCifar10 {
 
                 Path modelPath = Paths.get("build/model");
                 model.save(modelPath, "resnetv1");
+                System.out.println(result);
 
                 return result;
             }
