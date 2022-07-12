@@ -59,14 +59,14 @@ public class Main {
     }
 
     //put important data in csv file
-    private static void toCSV(double mAP, int imageSize) throws IOException {
+    private static void toCSV(double mAP, int imageWidth, int imageHeight, String className) throws IOException {
         File file = new File("results/results.csv");
 
         try{
             FileWriter outputfile = new FileWriter(file, true); //true: file niet overwriten, toevoegen
             CSVWriter writer = new CSVWriter(outputfile);
             List<String[]> data = new ArrayList<String[]>();
-            data.add(new String[] {String.valueOf(mAP), String.valueOf(imageSize)});
+            data.add(new String[] {String.valueOf(mAP), String.valueOf(imageWidth), String.valueOf(imageWidth), className});
             writer.writeAll(data);
 
             writer.close();
@@ -87,15 +87,20 @@ public class Main {
         model.close();
 
         System.out.println(detected_objects);
-
-        img.drawBoundingBoxes(detected_objects);
-        Path resultPath = Paths.get("results/result.png");
-        img.save(Files.newOutputStream(resultPath), "png");
+//        img.drawBoundingBoxes(detected_objects);
+//        Path resultPath = Paths.get("results/result.png");
+//        img.save(Files.newOutputStream(resultPath), "png");
 
         //save data to csv
-        double mAP = detected_objects.best().getProbability();
-        int imageSize = img.getHeight()*img.getWidth();
-        toCSV(mAP, imageSize);
+        try {
+            double mAP = detected_objects.best().getProbability();
+            String className = detected_objects.best().getClassName();
+            int imageSize = img.getHeight() * img.getWidth();
+            toCSV(mAP, img.getWidth(), img.getHeight(), className);
+        }
+        catch(final Exception e){
+            e.printStackTrace();
+        }
     }
 
     //create a list of all images
