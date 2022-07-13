@@ -7,14 +7,22 @@ import java.io.IOException;
 //https://www.codeproject.com/Tips/1172662/Histogram-Equalisation-in-Java
 public class HistogramEqualization {
     public static void main(String[] args) throws IOException {
-        BufferedImage img0 = ImageIO.read(new File("images/donkereboot.jpg"));
-        BufferedImage img1 = getGrayscaleImage(img0);
-        File f1 = new File("grayscaleimages/grayscaleresult.png");
-        ImageIO.write(img1,"png",f1);
-        BufferedImage img2 = equalize(img1);
-        File f2 = new File("histogramequalizationimages/histogramequalizationresult.png");
-        ImageIO.write(img2,"png",f2);
+        histogramequalization("images/boot1.png");
     }
+    static void histogramequalization(String path) throws IOException {
+        //naam scheiden
+        String sname = path.substring(path.lastIndexOf('/'));
+        String name = sname.substring(1);
+        String pextend = path.substring(path.lastIndexOf('.'));
+        String extend = pextend.substring(1);
+
+        BufferedImage img0 = ImageIO.read(new File(path));
+        BufferedImage img1 = getGrayscaleImage(img0);
+        BufferedImage img2 = equalize(img1);
+        File f2 = new File("histogramequalizationimages/"+name);
+        ImageIO.write(img2,extend,f2);
+    }
+
     static BufferedImage getGrayscaleImage(BufferedImage src) {
         BufferedImage gImg = new BufferedImage(src.getWidth(), src.getHeight(),
                 BufferedImage.TYPE_BYTE_GRAY);
