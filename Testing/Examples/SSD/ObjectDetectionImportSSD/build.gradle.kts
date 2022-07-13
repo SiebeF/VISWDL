@@ -21,6 +21,7 @@ dependencies {
     //   implementation("org.knowm.datasets:datasets-cifar10:2.1.0")
 //    implementation("ai.djl:basicdataset:0.17.0")
     implementation("net.sf.opencsv:opencsv:2.3")
+    implementation("commons-io:commons-io:2.6") //dependency for file extension
 }
 
 tasks.getByName<Test>("test") {

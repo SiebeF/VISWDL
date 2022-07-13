@@ -17,6 +17,8 @@ import ai.djl.repository.zoo.*;
 import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.TranslateException;
 import au.com.bytecode.opencsv.CSVWriter;
+import org.apache.commons.compress.utils.FileNameUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,20 +28,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 public class Main {
     //final layers wegnemen resnet 50 --> boat/no boat
     public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
-        List<String> images = createArrayList();
-
-        //iteratie through images and use model
-        for (String image : images){
-            String path = "images/" + image;
-            Path img_path = Paths.get(path);
-            Image img = ImageFactory.getInstance().fromFile(img_path);
-            makePrediction(img);
-        }
+        File[] files = new File("images").listFiles();
+        getDirectory(files);
     }
 
     private static Criteria<Image, DetectedObjects> getCriteria(){
@@ -77,7 +73,7 @@ public class Main {
     }
 
     //use the loaded model on the image
-    private static void makePrediction(Image img) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
+    private static void makePrediction(Image img, String imageName) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
         //load model
         ZooModel<Image, DetectedObjects> model = ModelZoo.loadModel(getCriteria());
 
@@ -87,9 +83,11 @@ public class Main {
         model.close();
 
         System.out.println(detected_objects);
-//        img.drawBoundingBoxes(detected_objects);
-//        Path resultPath = Paths.get("results/result.png");
-//        img.save(Files.newOutputStream(resultPath), "png");
+
+        img.drawBoundingBoxes(detected_objects);
+        String nameWithoutExtension = FilenameUtils.removeExtension(imageName);
+        Path resultPath = Paths.get("results/result_"+ nameWithoutExtension+".png");
+        img.save(Files.newOutputStream(resultPath), "png");
 
         //save data to csv
         try {
@@ -100,22 +98,23 @@ public class Main {
         }
         catch(final Exception e){
             e.printStackTrace();
+            toCSV(0,0,0,null);
         }
     }
 
     //create a list of all images
-    private static List<String> createArrayList(){
-        //src: https://www.codegrepper.com/code-examples/java/java+file+get+folder+list
-        List<String> images = new ArrayList<String>();
+    private static void getDirectory(File[] files) throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
+        //src: https://www.geeksforgeeks.org/java-program-to-traverse-in-a-directory/
 
-        File[] files = new File("images").listFiles();
-
-        assert files != null;
-        for (File file : files) {
-            if (file.isFile()) {
-                images.add(file.getName());
+        for (File filename : files) {
+            if (filename.isDirectory()) {
+                getDirectory(Objects.requireNonNull(filename.listFiles()));
+            } else if(FileNameUtils.getExtension(filename.getName()).equals("jpg")){ //make sure file is a jpg image
+                Path img_path = Paths.get(filename.getPath());
+                Image img = ImageFactory.getInstance().fromFile(img_path);
+                System.out.println(filename.getName());
+                makePrediction(img, filename.getName());
             }
         }
-        return images;
     }
 }
