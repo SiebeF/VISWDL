@@ -81,8 +81,8 @@ public final class TransferlearningResnetWithCifar10 {
                         .optSynsetUrl(synsetUrl)
                         .optApplySoftmax(true)
                         .build();
-        imageResizer("images/airplane1.png");
-        Image img = ImageFactory.getInstance().fromUrl("resizedimages/airplane1.png");
+        imageResizer("images/kitten.jpg");
+        Image img = ImageFactory.getInstance().fromUrl("resizedimages/kitten.jpg");
         try (Predictor<Image, Classifications> predictor = model.newPredictor(translator)) {
             System.out.println(predictor.predict(img));
         }
