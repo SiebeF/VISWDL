@@ -36,35 +36,38 @@ import java.util.Properties;
 public class Main {
     //final layers wegnemen resnet 50 --> boat/no boat
     public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
-        File[] files = new File("images").listFiles();
-        runApplication(files);
-    }
-
-    private static Criteria<Image, DetectedObjects> getCriteria(){
-        return (Criteria.builder()
-                .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
-                .setTypes(Image.class, DetectedObjects.class)
-                .optFilter("backbone", "resnet50")
-                .optProgress(new ProgressBar())
-                .build());
-//                .optApplication(Application.CV.OBJECT_DETECTION)
+        Criteria<Image, DetectedObjects> criteria = Criteria.builder()
+//                .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
 //                .setTypes(Image.class, DetectedObjects.class)
-//                .optFilter("backbone", "vgg16")
-//                .optFilter("dataset", "voc")
-//                .optEngine("MXNet")
-//                .optProgress(new ProgressBar())
+//                .optFilter("backbone", "mobilenet1.0")
 //                .build();
+
+                .optApplication(Application.CV.OBJECT_DETECTION)
+                .setTypes(Image.class, DetectedObjects.class)
+                .optFilter("backbone", "vgg16")
+                .optFilter("dataset", "voc")
+                .optEngine("MXNet")
+                .optProgress(new ProgressBar())
+                .build();
+        //load model
+        ZooModel<Image, DetectedObjects> model = ModelZoo.loadModel(criteria);
+
+        //predict model
+        Predictor<Image, DetectedObjects> predictor = model.newPredictor();
+        File[] files = new File("boot1_div=1.1_it=31").listFiles();
+        runApplication(model, predictor ,files);
+        model.close();
     }
 
     //put important data in csv file
     private static void toCSV(String filename, double mAP, int imageWidth, int imageHeight, String className) throws IOException {
-        File file = new File("results/results.csv");
+        File file = new File("results/hoogte.csv");
 
         try{
             FileWriter outputfile = new FileWriter(file, true); //true: file niet overwriten, toevoegen
             CSVWriter writer = new CSVWriter(outputfile);
             List<String[]> data = new ArrayList<String[]>();
-            data.add(new String[] {filename, String.valueOf(mAP), String.valueOf(imageWidth), String.valueOf(imageWidth), className});
+            data.add(new String[] {filename, String.valueOf(mAP), String.valueOf(imageWidth), String.valueOf(imageHeight), className});
             writer.writeAll(data);
 
             writer.close();
@@ -75,49 +78,44 @@ public class Main {
     }
 
     //use the loaded model on the image
-    private static void makePrediction(Image img, String imageName) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
-        //load model
-        ZooModel<Image, DetectedObjects> model = ModelZoo.loadModel(getCriteria());
-
-        //predict model
-        Predictor<Image, DetectedObjects> predictor = model.newPredictor();
+    private static void makePrediction(ZooModel<Image, DetectedObjects> model,Predictor<Image, DetectedObjects> predictor, Image img, String imageName) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
         DetectedObjects detected_objects = predictor.predict(img);
-        model.close();
+//        model.close();
 
         System.out.println(detected_objects);
 
         img.drawBoundingBoxes(detected_objects);
 
         String nameWithoutExtension = FilenameUtils.removeExtension(imageName);
-        Path resultPath = Paths.get("results/result_"+ nameWithoutExtension+".png");
-        img.save(Files.newOutputStream(resultPath), "png");
-        Object image_obj = img.getWrappedImage();
-        System.out.println(image_obj);
+//        Path resultPath = Paths.get("results/result_"+ nameWithoutExtension+".png");
+//        img.save(Files.newOutputStream(resultPath), "png");
+//        Object image_obj = img.getWrappedImage();
+//        System.out.println(image_obj);
         //save data to csv
         try {
-            double mAP = detected_objects.best().getProbability();
+            double probability = detected_objects.best().getProbability();
             String className = detected_objects.best().getClassName();
             int imageSize = img.getHeight() * img.getWidth();
-            toCSV(nameWithoutExtension,mAP, img.getWidth(), img.getHeight(), className);
+            toCSV(nameWithoutExtension,probability, img.getWidth(), img.getHeight(), className);
         }
         catch(final Exception e){
             e.printStackTrace();
-            toCSV(nameWithoutExtension,0,0,0,null);
+            toCSV(nameWithoutExtension,0,img.getWidth(),img.getHeight(),null);
         }
     }
 
     //create a list of all images
-    private static void runApplication(File[] files) throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
+    private static void runApplication(ZooModel<Image, DetectedObjects> model,Predictor<Image, DetectedObjects> predictor, File[] files) throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
         //src: https://www.geeksforgeeks.org/java-program-to-traverse-in-a-directory/
 
         for (File filename : files) {
             if (filename.isDirectory()) {
-                runApplication(Objects.requireNonNull(filename.listFiles()));
-            } else if(FileNameUtils.getExtension(filename.getName()).equals("jpg")){ //make sure file is a jpg image
+                runApplication(model, predictor ,filename.listFiles());
+            } else if(FileNameUtils.getExtension(filename.getName()).equals("png") || FileNameUtils.getExtension(filename.getName()).equals("jpg")){ //make sure file is a jpg image
                 Path img_path = Paths.get(filename.getPath());
                 Image img = ImageFactory.getInstance().fromFile(img_path);
                 System.out.println(filename.getName());
-                makePrediction(img, filename.getName());
+                makePrediction(model, predictor, img,  filename.getName());
             }
         }
     }
