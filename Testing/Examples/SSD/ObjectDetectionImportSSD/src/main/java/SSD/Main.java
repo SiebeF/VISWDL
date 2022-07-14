@@ -1,3 +1,4 @@
+package SSD;
 /*
  * src: //https://www.youtube.com/watch?v=bz4sBv8LTGM
  * */
@@ -5,16 +6,9 @@
 import ai.djl.Application;
 import ai.djl.MalformedModelException;
 import ai.djl.inference.Predictor;
-import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
-import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
-import ai.djl.modality.cv.output.Rectangle;
-import ai.djl.nn.Blocks;
-import ai.djl.nn.SequentialBlock;
-import ai.djl.nn.SymbolBlock;
-import ai.djl.nn.core.Linear;
 import ai.djl.repository.zoo.*;
 import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.TranslateException;
@@ -25,18 +19,15 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
 
 public class Main {
     //final layers wegnemen resnet 50 --> boat/no boat
     public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
-        Criteria<Image, DetectedObjects> criteria = Criteria.builder()
+                Criteria<Image, DetectedObjects> criteria = Criteria.builder()
 //                .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
 //                .setTypes(Image.class, DetectedObjects.class)
 //                .optFilter("backbone", "mobilenet1.0")
@@ -54,14 +45,14 @@ public class Main {
 
         //predict model
         Predictor<Image, DetectedObjects> predictor = model.newPredictor();
-        File[] files = new File("boot1_div=1.1_it=31").listFiles();
+        File[] files = new File("resizedimages").listFiles();
         runApplication(model, predictor ,files);
         model.close();
     }
 
     //put important data in csv file
     private static void toCSV(String filename, double mAP, int imageWidth, int imageHeight, String className) throws IOException {
-        File file = new File("results/hoogte.csv");
+        File file = new File("results/resizedImages.csv");
 
         try{
             FileWriter outputfile = new FileWriter(file, true); //true: file niet overwriten, toevoegen
