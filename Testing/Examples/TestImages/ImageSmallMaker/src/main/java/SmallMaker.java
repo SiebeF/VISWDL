@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 
 public class SmallMaker {
     public static void main(String[] args) throws IOException {
-        smallMaker("images/boot1.png",1.1,30);
+        smallMaker("images/boot1.png",1.1,31);
     }
     private static void smallMaker(String input, double divisor, int iterations) throws IOException {
         //naam scheiden
@@ -25,6 +25,7 @@ public class SmallMaker {
         String extend = pextend.substring(1);
         String namewoext = name.substring(0,name.lastIndexOf('.'));
         //map maken
+        double divisor0=divisor;
         File f = new File("/home/localadmin/Desktop/VISWDL/Testing/Examples/TestImages/ImageSmallMaker/resizedimages/"+ namewoext + "_div="+ divisor+"_it=" + iterations);
         if (f.mkdir() == true) {
             System.out.println("Directory has been created successfully");
@@ -34,25 +35,28 @@ public class SmallMaker {
         }
         BufferedImage img0 = ImageIO.read(new File(input));
         int width0 = img0.getWidth();
-        double dnwidth0 = width0/divisor;
+        double dnwidth0 = width0;
         int inwidth0 = (int) dnwidth0;
         int height0 = img0.getHeight();
-        double dnheight0 = height0/divisor;
+        double dnheight0 = height0;
         int inheight0 = (int) dnheight0;
         File file0 = new File("/home/localadmin/Desktop/VISWDL/Testing/Examples/TestImages/ImageSmallMaker/resizedimages/"+ namewoext  + "_div="+ divisor+"_it=" + iterations+"/"+0+"_"+(inwidth0*inheight0)+pextend);
         ImageIO.write(img0,extend,file0);
+        int height = img0.getHeight();
+        int width = img0.getWidth();
+
         //fotos verwerken
         for(int i = 0; i<iterations;i++) {
-            BufferedImage img = ImageIO.read(new File(input));
-            int width = img.getWidth();
+            //BufferedImage img = ImageIO.read(new File(input))
             double dnwidth = width/divisor;
-            int inwidth = (int) dnwidth;
-            int height = img.getHeight();
+//            int inwidth = (int) dnwidth;
+            width = (int) dnwidth;
             double dnheight = height/divisor;
-            int inheight = (int) dnheight;
-            File file = new File("/home/localadmin/Desktop/VISWDL/Testing/Examples/TestImages/ImageSmallMaker/resizedimages/"+ namewoext  + "_div="+ divisor+"_it=" + iterations+"/"+(i+1)+"_"+(inwidth*inheight)+pextend);
-            input = "/home/localadmin/Desktop/VISWDL/Testing/Examples/TestImages/ImageSmallMaker/resizedimages/"+ namewoext + "_div="+ divisor+"_it=" + iterations+"/"+(i+1)+"_"+(inwidth*inheight)+pextend;
-            ImageIO.write(resizeImage(img,inwidth,inheight),extend,file);
+//            int inheight = (int) dnheight;
+            height = (int) dnheight;
+            File file = new File("/home/localadmin/Desktop/VISWDL/Testing/Examples/TestImages/ImageSmallMaker/resizedimages/"+ namewoext  + "_div="+ divisor0+"_it=" + iterations+"/"+(i+1)+"_"+(width*height)+pextend);
+            //input = "/home/localadmin/Desktop/VISWDL/Testing/Examples/TestImages/ImageSmallMaker/resizedimages/"+ namewoext + "_div="+ divisor+"_it=" + iterations+"/"+(i+1)+"_"+(inwidth*inheight)+pextend;
+            ImageIO.write(resizeImage(img0,width,height),extend,file);
         }
     }
 
