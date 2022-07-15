@@ -69,7 +69,7 @@ public final class TransferlearningResnetWithCifar10 {
         model.setBlock(resNet50);
 
         // load the trained model parameters
-        Path modelPath = Paths.get("/home/localadmin/Desktop/VISWDL/Testing/Examples/Resnet/TransferlearningResnetWithCifar10/build/model");
+        Path modelPath = Paths.get("/home/localadmin/Desktop/VISWDL/VISWDL/Testing/Examples/Resnet/TransferlearningResnetWithCifar10/build/model");
         model.load(modelPath);
 
         String synsetUrl =
@@ -81,12 +81,11 @@ public final class TransferlearningResnetWithCifar10 {
                         .optSynsetUrl(synsetUrl)
                         .optApplySoftmax(true)
                         .build();
-        imageResizer("images/kitten.jpg");
-        Image img = ImageFactory.getInstance().fromUrl("resizedimages/kitten.jpg");
+        imageResizer("images/airplane1.png");
+        Image img = ImageFactory.getInstance().fromUrl("resizedimages/airplane1.png");
         try (Predictor<Image, Classifications> predictor = model.newPredictor(translator)) {
             System.out.println(predictor.predict(img));
         }
-
     }
 
     public static TrainingResult runExample(String[] args)

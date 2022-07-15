@@ -1,3 +1,5 @@
+package SSD;
+
 import ai.djl.MalformedModelException;
 import ai.djl.inference.Predictor;
 import ai.djl.modality.cv.Image;
