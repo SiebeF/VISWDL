@@ -28,31 +28,31 @@ public class Main {
     //final layers wegnemen resnet 50 --> boat/no boat
     public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
                 Criteria<Image, DetectedObjects> criteria = Criteria.builder()
-//                .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
-//                .setTypes(Image.class, DetectedObjects.class)
-//                .optFilter("backbone", "mobilenet1.0")
-//                .build();
-
-                .optApplication(Application.CV.OBJECT_DETECTION)
+                .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
                 .setTypes(Image.class, DetectedObjects.class)
-                .optFilter("backbone", "vgg16")
-                .optFilter("dataset", "voc")
-                .optEngine("MXNet")
-                .optProgress(new ProgressBar())
+                .optFilter("backbone", "mobilenet1.0")
                 .build();
+
+//                .optApplication(Application.CV.OBJECT_DETECTION)
+//                .setTypes(Image.class, DetectedObjects.class)
+//                .optFilter("backbone", "vgg16")
+//                .optFilter("dataset", "voc")
+//                .optEngine("MXNet")
+//                .optProgress(new ProgressBar())
+//                .build();
         //load model
         ZooModel<Image, DetectedObjects> model = ModelZoo.loadModel(criteria);
 
         //predict model
         Predictor<Image, DetectedObjects> predictor = model.newPredictor();
-        File[] files = new File("resizedimages").listFiles();
+        File[] files = new File("images").listFiles();
         runApplication(model, predictor ,files);
         model.close();
     }
 
     //put important data in csv file
     private static void toCSV(String filename, double mAP, int imageWidth, int imageHeight, String className) throws IOException {
-        File file = new File("results/resizedImages.csv");
+        File file = new File("results/test.csv");
 
         try{
             FileWriter outputfile = new FileWriter(file, true); //true: file niet overwriten, toevoegen
@@ -83,15 +83,29 @@ public class Main {
 //        Object image_obj = img.getWrappedImage();
 //        System.out.println(image_obj);
         //save data to csv
-        try {
-            double probability = detected_objects.best().getProbability();
-            String className = detected_objects.best().getClassName();
-            int imageSize = img.getHeight() * img.getWidth();
-            toCSV(nameWithoutExtension,probability, img.getWidth(), img.getHeight(), className);
-        }
-        catch(final Exception e){
-            e.printStackTrace();
+        if(detected_objects.getNumberOfObjects() == 0){
             toCSV(nameWithoutExtension,0,img.getWidth(),img.getHeight(),null);
+        }
+        else{
+            int objectAmount = detected_objects.getNumberOfObjects();
+            int bestIndex = 0;
+            double probability = 0;
+            String className = "";
+            boolean boatDetected = false;
+
+            for(int i = 0; i < objectAmount; i++){
+                //try to take the best probability of a detected boat
+                if(detected_objects.item(i).getClassName().equals("boat")){
+                    probability = detected_objects.item(i).getProbability();
+                    className = detected_objects.item(i).getClassName();
+                    boatDetected = true;
+                } else if (!boatDetected && i == (objectAmount-1)) { // if there was no boat detected return the best result
+                    probability = detected_objects.best().getProbability();
+                    className = detected_objects.best().getClassName();
+                }
+            }
+
+            toCSV(nameWithoutExtension,probability, img.getWidth(), img.getHeight(), className);
         }
     }
 
