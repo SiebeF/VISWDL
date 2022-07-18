@@ -48,20 +48,27 @@ public class Main {
 
         //predict model
         Predictor<Image, DetectedObjects> predictor = model.newPredictor();
-        File[] files = new File("images/7569").listFiles();
-        runApplication(model, predictor ,files);
+        File[] files = new File("images").listFiles();
+        ArrayList<String> pathList = createPathList(files);
+        for (String path : pathList){
+            Path imgPath = Paths.get(path);
+            File file = new File(path);
+            Image img = ImageFactory.getInstance().fromFile(imgPath);
+            String type = path.substring(path.indexOf("/")+1, path.lastIndexOf("/") );
+            makePrediction(model, predictor, img, file.getName(), type);
+        }
         model.close();
     }
 
     //put important data in csv file
-    private static void toCSV(String filename, double mAP, int imageWidth, int imageHeight, String className) throws IOException {
-        File file = new File("results/test.csv");
+    private static void toCSV(String filename, double mAP, int imageWidth, int imageHeight, String className, String filepath) throws IOException {
+        File file = new File("results/mobilenet10_random.csv");
 
         try{
-            FileWriter outputfile = new FileWriter(file, true); //true: file niet overwriten, toevoegen
+            FileWriter outputfile = new FileWriter(file); //true: file niet overwriten, toevoegen
             CSVWriter writer = new CSVWriter(outputfile);
             List<String[]> data = new ArrayList<String[]>();
-            data.add(new String[] {filename, String.valueOf(mAP), String.valueOf(imageWidth), String.valueOf(imageHeight), className});
+            data.add(new String[] {filename, String.valueOf(mAP), String.valueOf(imageWidth), String.valueOf(imageHeight), className, filepath});
             writer.writeAll(data);
 
             writer.close();
@@ -72,7 +79,7 @@ public class Main {
     }
 
     //use the loaded model on the image
-    private static void makePrediction(ZooModel<Image, DetectedObjects> model,Predictor<Image, DetectedObjects> predictor, Image img, String imageName) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
+    private static void makePrediction(ZooModel<Image, DetectedObjects> model,Predictor<Image, DetectedObjects> predictor, Image img, String imageName, String filepath) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
         DetectedObjects detected_objects = predictor.predict(img);
 //        model.close();
 
@@ -87,7 +94,7 @@ public class Main {
 //        System.out.println(image_obj);
         //save data to csv
         if(detected_objects.getNumberOfObjects() == 0){
-            toCSV(nameWithoutExtension,0,img.getWidth(),img.getHeight(),null);
+            toCSV(nameWithoutExtension,0,img.getWidth(),img.getHeight(),null, filepath);
         }
         else{
             int objectAmount = detected_objects.getNumberOfObjects();
@@ -112,10 +119,10 @@ public class Main {
                 }
             }
 
-            Path resultPath1 = Paths.get("resultImages/cropped_Img.png");
-            croppedImg.save(Files.newOutputStream(resultPath1), "png");
+//            Path resultPath1 = Paths.get("resultImages/cropped_Img.png");
+//            croppedImg.save(Files.newOutputStream(resultPath1), "png");
 
-            toCSV(nameWithoutExtension,probability, img.getWidth(), img.getHeight(), className);
+            toCSV(nameWithoutExtension,probability, img.getWidth(), img.getHeight(), className, filepath);
         }
     }
 
@@ -151,18 +158,17 @@ public class Main {
     }
 
     //create a list of all images
-    private static void runApplication(ZooModel<Image, DetectedObjects> model,Predictor<Image, DetectedObjects> predictor, File[] files) throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
+    private static ArrayList<String> createPathList(File[] files) throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
         //src: https://www.geeksforgeeks.org/java-program-to-traverse-in-a-directory/
+        ArrayList<String> pathList = new ArrayList<>();
 
         for (File filename : files) {
             if (filename.isDirectory()) {
-                runApplication(model, predictor ,filename.listFiles());
-            } else if(FileNameUtils.getExtension(filename.getName()).equals("png") || FileNameUtils.getExtension(filename.getName()).equals("jpg")){ //make sure file is a jpg image
-                Path img_path = Paths.get(filename.getPath());
-                Image img = ImageFactory.getInstance().fromFile(img_path);
-                System.out.println(filename.getName());
-                makePrediction(model, predictor, img,  filename.getName());
+                createPathList(filename.listFiles());
+            } else if(FileNameUtils.getExtension(filename.getName()).equals("png") || FileNameUtils.getExtension(filename.getName()).equals("jpg")|| FileNameUtils.getExtension(filename.getName()).equals("jpeg")){ //make sure file is a jpg image
+                pathList.add(filename.getPath());
             }
         }
+        return pathList;
     }
 }

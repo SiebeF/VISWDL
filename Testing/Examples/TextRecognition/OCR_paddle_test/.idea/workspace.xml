@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="640eb002-6f37-488f-8e32-e459756da0a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/build/classes/java/main/SSD/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/build/classes/java/main/SSD/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/src/main/java/SSD/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/src/main/java/SSD/Main.java" afterDir="false" />
-    </list>
+    <list default="true" id="640eb002-6f37-488f-8e32-e459756da0a3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
