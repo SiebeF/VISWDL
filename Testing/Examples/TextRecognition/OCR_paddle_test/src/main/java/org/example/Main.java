@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+//src = https://docs.djl.ai/jupyter/paddlepaddle/paddle_ocr_java.html
 public class Main {
     public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
         //String url = "http://millenia.ph/wp-content/uploads/2012/04/02_dominia.jpg";

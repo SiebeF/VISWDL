@@ -5,35 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="640eb002-6f37-488f-8e32-e459756da0a3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/2043355_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GetImage.jpeg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/boundingBox.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/img.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wrappedImage.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLjupyter" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLjupyter.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/.gradle/7.4/checksums/checksums.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/.idea/gradle.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/build.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/settings.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Resnet/TLtest/src/main/java/org/example/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../OCR_example_test" beforeDir="false" afterPath="$PROJECT_DIR$/../OCR_example_test" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/build/classes/java/main/SSD/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/build/classes/java/main/SSD/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/src/main/java/SSD/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../SSD/ObjectDetectionImportSSD/src/main/java/SSD/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +33,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "last_opened_file_path": "/home/localadmin/Desktop/VISWDL/VISWDL/Testing/Examples/TextRecognition/OCR_example_test",
+    "last_opened_file_path": "/home/localadmin/Desktop/VISWDL/VISWDL/Testing/Examples/SSD/ObjectDetectionImportSSD",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0"
