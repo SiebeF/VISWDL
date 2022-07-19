@@ -91,7 +91,7 @@ public class HistogramEqualization {
         for (File filename : files) {
             if (filename.isDirectory()) {
                 runApplication(filename.listFiles());
-            } else if(FileNameUtils.getExtension(filename.getName()).equals("jpg")){ //make sure file is a jpg image
+            } else{//else if(FileNameUtils.getExtension(filename.getName()).equals("jpg")){ //make sure file is a jpg image
                 histogramequalization(filename.getPath());
             }
         }

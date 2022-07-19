@@ -3,4 +3,7 @@ results/
 .gradle/
 .idea/
 resizedimages/
+histogramequalizationimages/
+images-to-resize/
+
 

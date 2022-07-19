@@ -17,55 +17,47 @@ import ai.djl.translate.TranslateException;
 import au.com.bytecode.opencsv.CSVWriter;
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.tensorflow.op.linalg.Det;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     //final layers wegnemen resnet 50 --> boat/no boat
-    public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
-                Criteria<Image, DetectedObjects> criteria = Criteria.builder()
-                .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
-                .setTypes(Image.class, DetectedObjects.class)
-                .optFilter("backbone", "mobilenet1.0")
-                .build();
+    public static String modelName;
+    public static String dataset;
+    public static void main(String[] args) throws Exception {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Model (resnet50 - vgg16 - mobilenet1.0): ");
+        modelName = sc.nextLine();
+        System.out.print("Dataset: ");
+        dataset = sc.nextLine();
+        System.out.print("Image Folder: ");
+        String folderName = sc.nextLine();
 
-//                .optApplication(Application.CV.OBJECT_DETECTION)
-//                .setTypes(Image.class, DetectedObjects.class)
-//                .optFilter("backbone", "vgg16")
-//                .optFilter("dataset", "voc")
-//                .optEngine("MXNet")
-//                .optProgress(new ProgressBar())
-//                .build();
-        //load model
-        ZooModel<Image, DetectedObjects> model = ModelZoo.loadModel(criteria);
+        //clear file
+        File file = new File("results/"+modelName+"_"+dataset+".csv");
+        PrintWriter writer = new PrintWriter(file);
+        writer.print("");
+        writer.close();
 
-        //predict model
-        Predictor<Image, DetectedObjects> predictor = model.newPredictor();
-        File[] files = new File("images").listFiles();
-        ArrayList<String> pathList = createPathList(files);
-        for (String path : pathList){
-            Path imgPath = Paths.get(path);
-            File file = new File(path);
-            Image img = ImageFactory.getInstance().fromFile(imgPath);
-            String type = path.substring(path.indexOf("/")+1, path.lastIndexOf("/") );
-            makePrediction(model, predictor, img, file.getName(), type);
-        }
-        model.close();
+        run(modelName, dataset, folderName);
     }
 
     //put important data in csv file
     private static void toCSV(String filename, double mAP, int imageWidth, int imageHeight, String className, String filepath) throws IOException {
-        File file = new File("results/mobilenet10_random.csv");
-
+        File file = new File("results/"+modelName+"_"+dataset+".csv");
         try{
-            FileWriter outputfile = new FileWriter(file); //true: file niet overwriten, toevoegen
+            FileWriter outputfile = new FileWriter(file, true); //true: file niet overwriten, toevoegen
             CSVWriter writer = new CSVWriter(outputfile);
             List<String[]> data = new ArrayList<String[]>();
             data.add(new String[] {filename, String.valueOf(mAP), String.valueOf(imageWidth), String.valueOf(imageHeight), className, filepath});
@@ -77,7 +69,28 @@ public class Main {
             e.printStackTrace();
         }
     }
-
+    private static Criteria<Image, DetectedObjects> getCriteria(String model, String dataset) throws Exception {
+        if (model.equals("resnet50") || model.equals("mobilenet1.0")){
+            return Criteria.builder()
+                    .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
+                    .setTypes(Image.class, DetectedObjects.class)
+                    .optFilter("backbone", model)
+                    .build();
+        }
+        else if (model.equals("vgg16")){
+            return Criteria.builder()
+                .optApplication(Application.CV.OBJECT_DETECTION)
+                    .setTypes(Image.class, DetectedObjects.class)
+                    .optFilter("backbone", "vgg16")
+                    .optFilter("dataset", dataset)
+                    .optEngine("MXNet")
+                    .optProgress(new ProgressBar())
+                    .build();
+        }
+        else{
+            throw new Exception("Invalid model");
+        }
+    }
     //use the loaded model on the image
     private static void makePrediction(ZooModel<Image, DetectedObjects> model,Predictor<Image, DetectedObjects> predictor, Image img, String imageName, String filepath) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
         DetectedObjects detected_objects = predictor.predict(img);
@@ -85,11 +98,11 @@ public class Main {
 
         System.out.println(detected_objects);
 
-        //img.drawBoundingBoxes(detected_objects);
+        img.drawBoundingBoxes(detected_objects);
 
         String nameWithoutExtension = FilenameUtils.removeExtension(imageName);
-//        Path resultPath = Paths.get("results/result_"+ nameWithoutExtension+".png");
-//        img.save(Files.newOutputStream(resultPath), "png");
+        Path resultPath = Paths.get("resultImages/result_"+ nameWithoutExtension+".png");
+        img.save(Files.newOutputStream(resultPath), "png");
 //        Object image_obj = img.getWrappedImage();
 //        System.out.println(image_obj);
         //save data to csv
@@ -158,17 +171,36 @@ public class Main {
     }
 
     //create a list of all images
-    private static ArrayList<String> createPathList(File[] files) throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
+    private static List<String> createPathList(List<String> paths, File[] files) throws IOException, TranslateException, ModelNotFoundException, MalformedModelException {
         //src: https://www.geeksforgeeks.org/java-program-to-traverse-in-a-directory/
-        ArrayList<String> pathList = new ArrayList<>();
-
         for (File filename : files) {
             if (filename.isDirectory()) {
-                createPathList(filename.listFiles());
+                createPathList(paths, filename.listFiles());
             } else if(FileNameUtils.getExtension(filename.getName()).equals("png") || FileNameUtils.getExtension(filename.getName()).equals("jpg")|| FileNameUtils.getExtension(filename.getName()).equals("jpeg")){ //make sure file is a jpg image
-                pathList.add(filename.getPath());
+                paths.add(filename.getPath());
             }
         }
-        return pathList;
+        return paths;
+    }
+
+    private static void run(String modelName, String dataset, String folderName) throws Exception {
+        Criteria<Image, DetectedObjects> criteria = getCriteria(modelName, dataset);
+        //load model
+        ZooModel<Image, DetectedObjects> model = ModelZoo.loadModel(criteria);
+
+        //predict model
+        Predictor<Image, DetectedObjects> predictor = model.newPredictor();
+        File[] files = new File(folderName).listFiles();
+        List<String> pathList = new ArrayList<>();
+        pathList = createPathList(pathList, files);
+        for (String path : pathList){
+            Path imgPath = Paths.get(path);
+            File file = new File(path);
+            Image img = ImageFactory.getInstance().fromFile(imgPath);
+            //String type = path.substring(path.indexOf("/")+1, path.lastIndexOf("/") );
+            String type = "histogram eq.";
+            makePrediction(model, predictor, img, file.getName(), type);
+        }
+        model.close();
     }
 }
