@@ -36,21 +36,46 @@ public class Main {
     public static String modelName;
     public static String dataset;
     public static void main(String[] args) throws Exception {
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Model (resnet50 - vgg16 - mobilenet1.0): ");
-        modelName = sc.nextLine();
-        System.out.print("Dataset: ");
-        dataset = sc.nextLine();
-        System.out.print("Image Folder: ");
-        String folderName = sc.nextLine();
+//        Scanner sc = new Scanner(System.in);
+//        System.out.print("Model (resnet50 - vgg16 - mobilenet1.0 - yolo): ");
+//        modelName = sc.nextLine();
+//        System.out.print("Dataset: ");
+//        dataset = sc.nextLine();
+//        System.out.print("Image Folder: ");
+//        String folderName = sc.nextLine();
+//        //clear file
+//        File file = new File("results/"+modelName+"_"+dataset+".csv");
+//        PrintWriter writer = new PrintWriter(file);
+//        writer.print("");
+//        writer.close();
+//
+//        run(modelName, dataset, folderName);
 
-        //clear file
-        File file = new File("results/"+modelName+"_"+dataset+".csv");
-        PrintWriter writer = new PrintWriter(file);
-        writer.print("");
-        writer.close();
-
-        run(modelName, dataset, folderName);
+        String[] models = {"resnet50", "vgg16", "mobilenet1.0", "yolo"};
+        String[] datasets = {"voc", "coco"};
+        String folderName = "images";
+        for(String model : models){
+            if(model.equals("vgg16")){
+                for(String set : datasets){
+                    modelName = model;
+                    dataset = set;
+                    File file = new File("results/"+modelName+"_"+dataset+".csv");
+                    PrintWriter writer = new PrintWriter(file);
+                    writer.print("");
+                    writer.close();
+                    run(model, set, folderName);
+                }
+            }
+            else{
+                modelName = model;
+                dataset = "x";
+                File file = new File("results/"+modelName+"_"+dataset+".csv");
+                PrintWriter writer = new PrintWriter(file);
+                writer.print("");
+                writer.close();
+                run(model, "", folderName);
+            }
+        }
     }
 
     //put important data in csv file
@@ -71,6 +96,7 @@ public class Main {
     }
     private static Criteria<Image, DetectedObjects> getCriteria(String model, String dataset) throws Exception {
         if (model.equals("resnet50") || model.equals("mobilenet1.0")){
+            System.out.println("loading "+model+" model");
             return Criteria.builder()
                     .optApplication(Application.CV.OBJECT_DETECTION) //--> ssd
                     .setTypes(Image.class, DetectedObjects.class)
@@ -78,12 +104,21 @@ public class Main {
                     .build();
         }
         else if (model.equals("vgg16")){
+            System.out.println("loading vgg16 model");
             return Criteria.builder()
                 .optApplication(Application.CV.OBJECT_DETECTION)
                     .setTypes(Image.class, DetectedObjects.class)
                     .optFilter("backbone", "vgg16")
                     .optFilter("dataset", dataset)
                     .optEngine("MXNet")
+                    .optProgress(new ProgressBar())
+                    .build();
+        }
+        else if (model.equals("yolo")){
+            System.out.println("loading yolo model");
+            return Criteria.builder()
+                    .optModelUrls("https://tfhub.dev/neso613/lite-model/yolo-v5-tflite/tflite_model/1")
+                    .setTypes(Image.class, DetectedObjects.class)
                     .optProgress(new ProgressBar())
                     .build();
         }
@@ -94,14 +129,13 @@ public class Main {
     //use the loaded model on the image
     private static void makePrediction(ZooModel<Image, DetectedObjects> model,Predictor<Image, DetectedObjects> predictor, Image img, String imageName, String filepath) throws ModelNotFoundException, MalformedModelException, IOException, TranslateException {
         DetectedObjects detected_objects = predictor.predict(img);
-//        model.close();
 
         System.out.println(detected_objects);
-
+        Image plainImg = img;
         img.drawBoundingBoxes(detected_objects);
-
+        
         String nameWithoutExtension = FilenameUtils.removeExtension(imageName);
-        Path resultPath = Paths.get("resultImages/result_"+ nameWithoutExtension+".png");
+        Path resultPath = Paths.get("resultImages/bbox/result_"+ nameWithoutExtension+"_bbox.png");
         img.save(Files.newOutputStream(resultPath), "png");
 //        Object image_obj = img.getWrappedImage();
 //        System.out.println(image_obj);
@@ -123,23 +157,22 @@ public class Main {
                 if(detected_objects.item(i).getClassName().equals("boat")){
                     probability = detected_objects.item(i).getProbability();
                     className = detected_objects.item(i).getClassName();
-                    croppedImg = getSubImage(img, boxes.get(i).getBoundingBox());
+                    croppedImg = getSubImage(plainImg, boxes.get(i).getBoundingBox());
                     boatDetected = true;
                 } else if (!boatDetected && i == (objectAmount-1)) { // if there was no boat detected return the best result
                     probability = detected_objects.best().getProbability();
                     className = detected_objects.best().getClassName();
-                    croppedImg = getSubImage(img, boxes.get(i).getBoundingBox());
+                    croppedImg = getSubImage(plainImg, boxes.get(i).getBoundingBox());
                 }
             }
-
-//            Path resultPath1 = Paths.get("resultImages/cropped_Img.png");
-//            croppedImg.save(Files.newOutputStream(resultPath1), "png");
-
+            Path resultPath1 = Paths.get("resultImages/cropped/"+nameWithoutExtension+"_cropped.png");
+            croppedImg.save(Files.newOutputStream(resultPath1), "png");
+            System.out.println(nameWithoutExtension);
             toCSV(nameWithoutExtension,probability, img.getWidth(), img.getHeight(), className, filepath);
         }
     }
 
-    public static Image getSubImage(Image img, BoundingBox box){
+    private static Image getSubImage(Image img, BoundingBox box){
         Rectangle rect = box.getBounds();
         double[] extended = extendRect(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
         int width = img.getWidth();
@@ -153,15 +186,15 @@ public class Main {
         return img.getSubImage(recovered[0], recovered[1], recovered[2], recovered[3]);
     }
 
-    public static double[] extendRect(double xmin, double ymin, double width, double height) {
+    private static double[] extendRect(double xmin, double ymin, double width, double height) {
         double centerx = xmin + width / 2;
         double centery = ymin + height / 2;
         if (width > height) {
-            width += height * 2.0;
-            height *= 3.0;
+            width += height * 1.0; //2
+            height *= 2.0; //3
         } else {
-            height += width * 2.0;
-            width *= 3.0;
+            height += width * 1.0; //2
+            width *= 2.0; //3
         }
         double newX = centerx - width / 2 < 0 ? 0 : centerx - width / 2;
         double newY = centery - height / 2 < 0 ? 0 : centery - height / 2;
@@ -197,8 +230,8 @@ public class Main {
             Path imgPath = Paths.get(path);
             File file = new File(path);
             Image img = ImageFactory.getInstance().fromFile(imgPath);
-            //String type = path.substring(path.indexOf("/")+1, path.lastIndexOf("/") );
-            String type = "histogram eq.";
+            String type = path.substring(path.indexOf("/")+1, path.lastIndexOf("/") );
+//            String type = "histogram eq.";
             makePrediction(model, predictor, img, file.getName(), type);
         }
         model.close();

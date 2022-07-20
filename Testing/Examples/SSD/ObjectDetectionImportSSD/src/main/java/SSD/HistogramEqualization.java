@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 //https://www.codeproject.com/Tips/1172662/Histogram-Equalisation-in-Java
 public class HistogramEqualization {
     public static void main(String[] args) throws IOException, TranslateException {
-        File[] files = new File("images").listFiles();
+        File[] files = new File("testImage/image").listFiles();
         runApplication(files);
     }
     static void histogramequalization(String path) throws IOException {
